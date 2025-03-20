@@ -6,6 +6,9 @@ on:
 
 jobs:
   test-lint-build:
+    permissions:
+      pull-requests: read
+      checks: write
     uses: ./.github/workflows/pull_request.yaml
 
   release:
