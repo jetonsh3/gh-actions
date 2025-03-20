@@ -47,8 +47,9 @@ jobs:
 
   pr-ci:
     name: Dispatch Pull Request CI
+    needs: [unit-tests, lint]
     runs-on: ubuntu-latest
     steps:
-      - uses: benc-uk/workflow-dispatch@v1
+      - uses: pauldraper/workflow-dispatch@v1.6
         with:
-          workflow: Pull Request CI
+          workflow: pr-ci.yml

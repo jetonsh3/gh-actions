@@ -56,8 +56,9 @@ jobs:
 
   cd:
     name: Dispatch CD Workflow
+    needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: benc-uk/workflow-dispatch@v1
+      - uses: pauldraper/workflow-dispatch@v1.6
         with:
-          workflow: CD
+          workflow: cd.yml
