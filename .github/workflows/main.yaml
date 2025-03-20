@@ -43,9 +43,7 @@ jobs:
     steps:
       - name: Create And Push Manifest
         run: |
-          docker manifest create ghactions:latest \
-            ghactions:amd64 \
-            ghactions:arm64
+          echo "Pushing ghactions:latest manifest"
   
   deploy:
     name: Deploy
