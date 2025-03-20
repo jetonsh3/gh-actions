@@ -9,6 +9,7 @@ jobs:
     permissions:
       pull-requests: read
       checks: write
+      contents: read
     uses: ./.github/workflows/pull_request.yaml
 
   release:
