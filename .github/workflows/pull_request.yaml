@@ -9,6 +9,7 @@ jobs:
   unit-test-lint:
     permissions:
       pull-requests: read
+      contents: read
       checks: write
     uses: ./.github/workflows/branch.yaml
 
