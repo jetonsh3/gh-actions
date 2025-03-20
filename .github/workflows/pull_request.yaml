@@ -14,6 +14,7 @@ jobs:
     uses: ./.github/workflows/branch.yaml
 
   build:
+    name: Build
     needs: unit-test-lint
     runs-on: ubuntu-latest
     strategy:
@@ -32,7 +33,7 @@ jobs:
       - name: Build Go Binary
         run: |
           mkdir -p bin
-          GOOS=linux GOARCH=${{ matrix.arch }} go build -o bin/ghactions-${{ matrix.arch }} ./cmd/server/main.go
+          GOOS=linux GOARCH=${{ matrix.arch }} go build -o ./bin/ghactions-${{ matrix.arch }} ./cmd/server/main.go
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -57,7 +58,7 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         with:
           name: ghactions-${{ matrix.arch }}
-          path: bin/ghactions-${{ matrix.arch }}.tar
+          path: ./ghactions-${{ matrix.arch }}.tar
           if-no-files-found: error
           retention-days: 1
           compression-level: 0

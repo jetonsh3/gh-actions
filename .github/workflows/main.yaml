@@ -13,6 +13,7 @@ jobs:
     uses: ./.github/workflows/pull_request.yaml
 
   release:
+    name: Release
     permissions:
       id-token: write
       contents: read
@@ -36,6 +37,7 @@ jobs:
           echo "Pushing ghactions-${{ matrix.arch }}:${{ matrix.arch }}"
 
   deploy:
+    name: Deploy
     needs: release
     runs-on: ubuntu-latest
     steps:
