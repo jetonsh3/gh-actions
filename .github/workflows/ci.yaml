@@ -18,7 +18,7 @@ jobs:
         with:
           state: open
 
-      - uses: andymckay/cancel-action@0.2
+      - uses: action-pack/cancel@v1
         if: ${{ steps.find-pr.outputs.number != '' }}
 
   tests:
