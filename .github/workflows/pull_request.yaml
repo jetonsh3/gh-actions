@@ -54,7 +54,7 @@ jobs:
 
       - name: Upload Docker Image Artifact
         uses: actions/upload-artifact@v4
-        if: github.event_name == 'workflow_call'
+        if: ${{ github.event_name == 'push' }}
         with:
           name: ghactions-${{ matrix.arch }}
           path: bin/ghactions-${{ matrix.arch }}.tar
