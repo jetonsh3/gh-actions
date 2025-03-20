@@ -7,8 +7,8 @@ on:
       - '!main'
 
 jobs:
-  skip-if-pr:
-    name: Cancel if PR exists
+  get-pr:
+    name: Get PR
     runs-on: ubuntu-latest
     outputs:
       pr-number: ${{ steps.find-pr.outputs.number }}
@@ -18,9 +18,6 @@ jobs:
         with:
           state: open
 
-      - uses: action-pack/cancel@v1
-        if: ${{ steps.find-pr.outputs.number != '' }}
-
   tests:
     name: Test & Lint
     permissions:
@@ -28,4 +25,5 @@ jobs:
       contents: read
       checks: write
     uses: ./.github/workflows/tests.yaml
-    needs: skip-if-pr
+    needs: get-pr
+    if: ${{ needs.get-pr.outputs.pr-number == '' }}
