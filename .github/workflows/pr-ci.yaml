@@ -1,11 +1,21 @@
 name: Pull Request CI
 
 on:
-  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+  workflow_call:
 
 jobs:
+  unit-test-lint:
+    permissions:
+      pull-requests: read
+      contents: read
+      checks: write
+    uses: ./.github/workflows/ci.yaml
+
   build:
     name: Build
+    needs: unit-test-lint
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -53,12 +63,3 @@ jobs:
           retention-days: 1
           compression-level: 0
           overwrite: true
-
-  cd:
-    name: Dispatch CD Workflow
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: pauldraper/workflow-dispatch@v1.6
-        with:
-          workflow: cd.yml

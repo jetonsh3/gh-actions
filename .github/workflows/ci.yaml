@@ -4,52 +4,28 @@ on:
   push:
     branches:
       - '**'
+      - '!main'
 
 jobs:
-  unit-tests:
-    name: Unit Tests
+  skip-if-pr:
+    name: Cancel if PR exists
     runs-on: ubuntu-latest
+    outputs:
+      pr-number: ${{ steps.find-pr.outputs.number }}
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
+      - uses: jwalton/gh-find-current-pr@master
+        id: find-pr
         with:
-          go-version-file: './go.mod'
-          cache-dependency-path: |
-            go.sum
+          state: open
 
-      - name: Run Tests
-        run: go test ./...
+      - uses: andymckay/cancel-action@0.2
+        if: ${{ steps.find-pr.outputs.number != '' }}
 
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
+  tests:
+    name: Test & Lint
     permissions:
-      contents: read
       pull-requests: read
-      checks: write # allow write access to checks to allow the action to annotate code in the PR.
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: './go.mod'
-          cache-dependency-path: |
-            go.sum
-
-      - name: Lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: v1.63.4
-          args: --timeout=5m
-
-  pr-ci:
-    name: Dispatch Pull Request CI
-    needs: [unit-tests, lint]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: pauldraper/workflow-dispatch@v1.6
-        with:
-          workflow: pr-ci.yml
+      contents: read
+      checks: write
+    uses: ./.github/workflows/tests.yaml
+    needs: skip-if-pr
