@@ -1,23 +1,11 @@
-name: Main
+name: CD
 
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  test-lint-build:
-    permissions:
-      pull-requests: read
-      checks: write
-      contents: read
-    uses: ./.github/workflows/pull_request.yaml
-
   release:
     name: Release
-    permissions:
-      id-token: write
-      contents: read
-    needs: test-lint-build
     runs-on: ubuntu-latest
     strategy:
       matrix:
