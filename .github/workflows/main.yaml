@@ -33,9 +33,20 @@ jobs:
 
       - name: Push Docker Image
         run: |
-          docker tag ghactions-${{ matrix.arch }} ghactions-${{ matrix.arch }}:${{ matrix.arch }}
-          echo "Pushing ghactions-${{ matrix.arch }}:${{ matrix.arch }}"
+          docker tag ghactions:${{ matrix.arch }} ghactions:${{ github.sha }}
+          echo "Pushing ghactions:${{ matrix.arch }}"
 
+  release-docker-manifest:
+    name: Release Docker Manifest
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create And Push Manifest
+        run: |
+          docker manifest create ghactions:latest \
+            ghactions:amd64 \
+            ghactions:arm64
+  
   deploy:
     name: Deploy
     needs: release
