@@ -20,6 +20,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.13.2
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -27,8 +32,3 @@ jobs:
       
       - name: Bump Version
         run: npx -p @semantic-release/exec -p semantic-release-replace-plugin -p @semantic-release/git semantic-release
-
-      - name: Set up Helm
-        uses: azure/setup-helm@v3
-        with:
-          version: v3.13.2
