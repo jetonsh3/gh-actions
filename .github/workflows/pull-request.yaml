@@ -15,15 +15,12 @@ jobs:
     uses: ./.github/workflows/tests.yaml
 
   next-version:
+    if: ${{ github.ref_name == 'main' }}
     runs-on: ubuntu-latest
     outputs:
-      next-version: ${{ steps.next-version.outputs.next-version }}
-    permissions:
-      contents: read
+      next-version: ${{ steps.next-version.outputs.next-version || 'dev' }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -38,7 +35,7 @@ jobs:
           echo "next-version=$(npx -p @semantic-release/commit-analyzer semantic-release --dry-run --no-ci --plugins "@semantic-release/commit-analyzer" \
             | grep -o "next release version is [0-9]\+\.[0-9]\+\.[0-9]\+" \
             | sed 's/next release version is //')
-
+            
           echo "next-version=$NEXT_VERSION" >> $GITHUB_OUTPUT
 
   build-binary:
