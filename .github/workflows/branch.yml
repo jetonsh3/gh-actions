@@ -1,0 +1,16 @@
+name: Branch Tests
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches-ignore:
+      - main
+    paths-ignore:
+      - '.github/workflows/**'
+
+jobs:
+  tests:
+    uses: ./.github/workflows/tests.yaml
