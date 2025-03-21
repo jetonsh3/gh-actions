@@ -10,10 +10,6 @@ on:
         type: boolean
         default: true
 
-env:
-  ACTIONS_RUNNER_DEBUG: true
-  ACTIONS_STEP_DEBUG: true
-
 jobs:
   tests:
     uses: ./.github/workflows/tests.yaml
@@ -37,10 +33,12 @@ jobs:
       - name: Get Next Version
         id: next-version
         run: |
-          NEXT_VERSION=$(npx -p @semantic-release/commit-analyzer semantic-release --dry-run --no-ci --plugins "@semantic-release/commit-analyzer" \
+          npx -p @semantic-release/commit-analyzer semantic-release --dry-run --no-ci --plugins "@semantic-release/commit-analyzer"
+          
+          echo "next-version=$(npx -p @semantic-release/commit-analyzer semantic-release --dry-run --no-ci --plugins "@semantic-release/commit-analyzer" \
             | grep -o "next release version is [0-9]\+\.[0-9]\+\.[0-9]\+" \
             | sed 's/next release version is //')
-          echo $NEXT_VERSION
+
           echo "next-version=$NEXT_VERSION" >> $GITHUB_OUTPUT
 
   build-binary:
