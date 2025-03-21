@@ -14,13 +14,66 @@ jobs:
   tests:
     uses: ./.github/workflows/tests.yaml
 
-  build-binaries:
-    needs: tests
-    uses: ./.github/workflows/build-binaries.yaml
+  next-version:
+    runs-on: ubuntu-latest
+    outputs:
+      next-version: ${{ steps.next-version.outputs.next-version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "lts/*"
+
+      - name: Get Next Version
+        id: next-version
+        run: |
+          NEXT_VERSION=$(npx -p @semantic-release/commit-analyzer semantic-release --dry-run --no-ci --plugins "@semantic-release/commit-analyzer" \
+            | grep -o "next release version is [0-9]\+\.[0-9]\+\.[0-9]\+" \
+            | sed 's/next release version is //')
+          echo "::set-output name=next-version::$NEXT_VERSION"
+
+  build-binary:
+    name: Build Binary
+    needs: [tests, next-version]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [ghactions]
+        arch: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: './go.mod'
+          cache-dependency-path: |
+            go.sum
+
+      - name: Build Go Binary
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=${{ matrix.arch }} go build \
+            -o bin/${{ matrix.service }}-${{ matrix.arch }} \
+            -ldflags="-s -w" \
+            -ldflags="-X 'gh-actions/internal/version.Version=${{ needs.next-version.outputs.next-version }}'" \
+            -ldflags="-X 'gh-actions/internal/version.GitCommit=${{ github.sha }}'" \
+            ./${{ matrix.service }}/cmd/server/main.go
+
+      - name: Upload Binary Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.service }}-${{ matrix.arch }}
+          path: bin/${{ matrix.service }}-${{ matrix.arch }}
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+          overwrite: true
 
   build-push-docker-images:
     name: Build and Push Docker Image
-    needs: [tests, build-binaries]
+    needs: [tests, next-version, build-binary]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -60,6 +113,8 @@ jobs:
           images: ${{ matrix.service }}
           tags: |
             type=sha
+            type=raw,value=latest
+            type=raw,value=${{ needs.next-version.outputs.next-version }}
 
       - name: Build Docker Image
         run: |
