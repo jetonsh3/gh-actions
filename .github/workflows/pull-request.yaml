@@ -18,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       next-version: ${{ steps.next-version.outputs.next-version }}
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -32,7 +34,7 @@ jobs:
           NEXT_VERSION=$(npx -p @semantic-release/commit-analyzer semantic-release --dry-run --no-ci --plugins "@semantic-release/commit-analyzer" \
             | grep -o "next release version is [0-9]\+\.[0-9]\+\.[0-9]\+" \
             | sed 's/next release version is //')
-          echo "::set-output name=next-version::$NEXT_VERSION"
+          echo "next-version=$NEXT_VERSION" >> $GITHUB_OUTPUT
 
   build-binary:
     name: Build Binary
