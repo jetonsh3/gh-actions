@@ -6,6 +6,7 @@ on:
 
 jobs:
   ci:
+    name: CI
     permissions:
       pull-requests: read
       checks: write
