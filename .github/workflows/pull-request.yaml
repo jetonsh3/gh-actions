@@ -60,9 +60,9 @@ jobs:
         run: |
           CGO_ENABLED=0 GOOS=linux GOARCH=${{ matrix.arch }} go build \
             -o bin/${{ matrix.service }}-${{ matrix.arch }} \
-            -ldflags="-s -w" \
-            -ldflags="-X 'gh-actions/internal/version.Version=${{ needs.next-version.outputs.next-version }}'" \
-            -ldflags="-X 'gh-actions/internal/version.GitCommit=${{ github.sha }}'" \
+            -ldflags="-s -w \
+            -X 'gh-actions/internal/version.Version=${{ needs.next-version.outputs.next-version }}' \
+            -X 'gh-actions/internal/version.GitCommit=${{ github.sha }}'" \
             ./${{ matrix.service }}/cmd/server/main.go
 
       - name: Upload Binary Artifact
