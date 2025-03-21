@@ -9,11 +9,12 @@ RUN apk --no-cache add ca-certificates && \
 FROM scratch AS production
 
 ARG SERVICE
+ARG TARGETARCH
 
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /etc/passwd /etc/passwd
 
-COPY ${SERVICE} /service
+COPY ${SERVICE}-${TARGETARCH} /service
 
 USER ghactions
 

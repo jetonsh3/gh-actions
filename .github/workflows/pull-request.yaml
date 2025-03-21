@@ -1,0 +1,74 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_call:
+    inputs:
+      push:
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  tests:
+    uses: ./.github/workflows/tests.yaml
+
+  build-binaries:
+    needs: tests
+    uses: ./.github/workflows/build-binaries.yaml
+
+  build-push-docker-images:
+    name: Build and Push Docker Image
+    needs: [tests, build-binaries]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [ghactions]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: './go.mod'
+          cache-dependency-path: |
+            go.sum
+
+      - name: Download Binaries
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ matrix.service }}-*
+          path: bin
+          merge-multiple: true
+
+      - name: Authenticate to GCP Registry
+        if: ${{ inputs.push }}
+        run: |
+          echo "Authenticating to GCP Registry"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker Metadata
+        id: docker-metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ matrix.service }}
+          tags: |
+            type=sha
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./bin
+          file: ./Dockerfile
+          outputs: type=${{ inputs.push == true && 'registry' || 'oci' }}
+          platforms: linux/arm64,linux/amd64
+          tags: ${{ steps.docker-metadata.outputs.tags }}
+          labels: ${{ steps.docker-metadata.outputs.labels }}
+          build-args: |
+            SERVICE=${{ matrix.service }}
