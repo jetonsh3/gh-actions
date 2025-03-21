@@ -17,9 +17,18 @@ jobs:
   next-version:
     runs-on: ubuntu-latest
     outputs:
-      next-version: ${{ steps.next-version.outputs.next-version || 'dev' }}
+      next-version: ${{ steps.next-version.outputs.next-version || 'pr' }}
     steps:
+      - name: Check branch
+        run: |
+          if [[ "${{ github.ref_name }}" != "main" ]]; then
+            echo "next-version=pr" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+      
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -28,11 +37,10 @@ jobs:
 
       - name: Get Next Version
         id: next-version
-        run: |          
-          echo "next-version=$(npx -p @semantic-release/commit-analyzer semantic-release --dry-run --no-ci --plugins "@semantic-release/commit-analyzer" \
+        run: |
+          NEXT_VERSION=$(npx -p @semantic-release/commit-analyzer semantic-release --dry-run --no-ci --plugins "@semantic-release/commit-analyzer" \
             | grep -o "next release version is [0-9]\+\.[0-9]\+\.[0-9]\+" \
             | sed 's/next release version is //')
-            
           echo "next-version=$NEXT_VERSION" >> $GITHUB_OUTPUT
 
   build-binary:
