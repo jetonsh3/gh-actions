@@ -7,6 +7,9 @@ on:
         description: 'Next semantic version'
         value: ${{ jobs.version.outputs.next-version }}
 
+env:
+  BRANCH: ${{ github.head_ref || github.ref_name }}
+
 jobs:
   version:
     name: Get Next Version
@@ -28,7 +31,10 @@ jobs:
       - name: Get Next Version
         id: next-version
         run: |
-          NEXT_VERSION=$(npx -p @semantic-release/commit-analyzer semantic-release --dry-run --no-ci --plugins "@semantic-release/commit-analyzer" \
+          NEXT_VERSION=$(npx -p @semantic-release/commit-analyzer semantic-release \
+          --dry-run --no-ci \
+          --branches ${{ env.BRANCH }} \
+          --plugins "@semantic-release/commit-analyzer" \
             | grep -o "next release version is [0-9]\+\.[0-9]\+\.[0-9]\+" \
             | sed 's/next release version is //')
           echo "next-version=$NEXT_VERSION" >> $GITHUB_OUTPUT
