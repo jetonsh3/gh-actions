@@ -35,17 +35,12 @@ jobs:
           cache-dependency-path: |
             go.sum
 
-      - name: Download ARM64 Binary
+      - name: Download Binaries
         uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.service }}-arm64
-          path: ${{ matrix.service }}-arm64
-
-      - name: Download AMD64 Binary
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ matrix.service }}-amd64
-          path: ${{ matrix.service }}-amd64
+          pattern: ${{ matrix.service }}-*
+          path: bin
+          merge-multiple: true
 
       - name: Authenticate to GCP Registry
         if: ${{ inputs.push }}
@@ -58,6 +53,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Docker Metadata
+        id: docker-metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ matrix.service }}
+          tags: |
+            type=latest
+            type=sha
+
       - name: Build Docker Image
         uses: docker/build-push-action@v6
         with:
@@ -65,6 +69,7 @@ jobs:
           file: ./deploy/docker/Dockerfile.prod
           outputs: type=${{ inputs.push == true && 'registry' || 'oci' }}
           platforms: linux/arm64,linux/amd64
-          tags: ${{ matrix.service }}:latest
+          tags: ${{ steps.docker-metadata.outputs.tags }}
+          labels: ${{ steps.docker-metadata.outputs.labels }}
           build-args: |
             SERVICE=${{ matrix.service }}
