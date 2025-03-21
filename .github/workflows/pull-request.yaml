@@ -63,8 +63,8 @@ jobs:
         with:
           context: ./bin
           file: ./deploy/docker/Dockerfile.prod
-          push: ${{ inputs.push }}
-          load: ${{ !inputs.push }}
+          push: ${{ toJSON(inputs.push) }}
+          load: ${{ toJSON(!inputs.push) }}
           platforms: linux/arm64,linux/amd64
           tags: ${{ matrix.service }}:latest
           build-args: |
