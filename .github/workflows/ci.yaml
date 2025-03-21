@@ -27,6 +27,8 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    outputs:
+      pr-number: ${{ steps.pr.outputs.number }}
     permissions:
       contents: read
       pull-requests: read
@@ -47,28 +49,19 @@ jobs:
           version: v1.63.4
           args: --timeout=5m
 
-  check-pr:
-    name: Check PR
-    needs: [test, lint]
-    if: ${{ github.event_name == 'push' }}
-    runs-on: ubuntu-latest
-    outputs:
-      pr-number: ${{ steps.find-pr.outputs.number }}
-    steps:
       - uses: jwalton/gh-find-current-pr@master
-        id: find-pr
+        id: pr
         with:
           state: open
 
-      - name: Output PR
-        if: ${{ steps.find-pr.outputs.number != '' }}
+      - if: ${{ steps.pr.outputs.number != '' }}
         run: |
-          echo "pr-number=${{ steps.find-pr.outputs.number }}" >> $GITHUB_OUTPUT
+          echo "pr-number=${{ steps.pr.outputs.number }}" >> $GITHUB_OUTPUT
 
   build:
     name: Build
-    needs: [check-pr]
-    if: ${{ needs.check-pr.outputs.pr-number != '' || github.ref_name == 'main' }}
+    needs: [test, lint]
+    if: ${{ needs.lint.outputs.pr-number != '' || github.ref_name == 'main' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
