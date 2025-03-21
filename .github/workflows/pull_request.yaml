@@ -10,8 +10,9 @@ jobs:
     name: CI
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for CI workflow to complete
-        uses: ./.github/actions/wait-for-workflow
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/wait-for-workflow
         with:
           workflow-name: CI
           github-token: ${{ secrets.GITHUB_TOKEN }}
