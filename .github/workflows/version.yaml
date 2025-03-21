@@ -1,0 +1,34 @@
+name: Version
+
+on:
+  workflow_call:
+    outputs:
+      next-version:
+        description: 'Next semantic version'
+        value: ${{ jobs.version.outputs.next-version }}
+
+jobs:
+  version:
+    name: Next Version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      next-version: ${{ steps.next-version.outputs.next-version || '1.0.0' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "lts/*"
+
+      - name: Get Next Version
+        id: next-version
+        run: |
+          NEXT_VERSION=$(npx -p @semantic-release/commit-analyzer semantic-release --dry-run --no-ci --plugins "@semantic-release/commit-analyzer" \
+            | grep -o "next release version is [0-9]\+\.[0-9]\+\.[0-9]\+" \
+            | sed 's/next release version is //')
+          echo "next-version=$NEXT_VERSION" >> $GITHUB_OUTPUT
