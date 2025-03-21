@@ -12,17 +12,11 @@ jobs:
     needs: test-build-release
     runs-on: ubuntu-latest
     permissions:
-      contents: write 
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Configure Git Bot
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-      
 
       - name: Set up Node.js
         uses: actions/setup-node@v3

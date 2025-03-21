@@ -31,7 +31,10 @@ jobs:
       - name: Get Next Version
         id: next-version
         run: |
-          npx -p @semantic-release/commit-analyzer semantic-release --dry-run --no-ci --plugins "@semantic-release/commit-analyzer"
+          rm -rf .releaserc.yaml
+          echo "{\"branches\":[\"main\"],\"plugins\":[\"@semantic-release/commit-analyzer\"]}" > .releaserc.json
+
+          npx -p @semantic-release/commit-analyzer semantic-release --dry-run
 
           NEXT_VERSION=$(npx -p @semantic-release/commit-analyzer semantic-release --dry-run --no-ci --plugins "@semantic-release/commit-analyzer" \
             | grep -o "next release version is [0-9]\+\.[0-9]\+\.[0-9]\+" \
