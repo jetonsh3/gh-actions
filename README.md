@@ -1,3 +1,3 @@
 # GH-Actions
 
-Testing GitHub Actions
+Implement github actions workflow for ci/cd
