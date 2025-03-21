@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Make script executable
+        run: chmod +x .github/actions/wait-for-workflow/wait-for-workflow.sh
+
       - uses: ./.github/actions/wait-for-workflow
         with:
           workflow-name: CI
