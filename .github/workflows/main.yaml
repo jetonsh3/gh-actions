@@ -6,6 +6,8 @@ on:
 
 jobs:
   test-build-release:
+    permissions:
+      contents: write
     uses: ./.github/workflows/pull-request.yaml
 
   deploy:
