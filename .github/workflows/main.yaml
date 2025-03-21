@@ -5,16 +5,26 @@ on:
     branches: [main]
 
 jobs:
-  ci-release:
+  test-build-release:
     uses: ./.github/workflows/pull-request.yaml
 
   deploy:
-    needs: ci-release
+    needs: test-build-release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "lts/*"
 
       - name: Set up Helm
         uses: azure/setup-helm@v3
         with:
           version: v3.13.2
+      
+      - name: Release
+        run: npx -p @semantic-release/exec -p semantic-release-replace-plugin -p @semantic-release/git semantic-release --debug
