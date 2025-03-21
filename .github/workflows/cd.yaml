@@ -1,8 +1,8 @@
-name: Main
+name: CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test-lint-build:
@@ -10,7 +10,7 @@ jobs:
       pull-requests: read
       checks: write
       contents: read
-    uses: ./.github/workflows/pull_request.yaml
+    uses: ./.github/workflows/ci.yaml
 
   release:
     name: Release
