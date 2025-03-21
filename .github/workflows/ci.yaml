@@ -68,7 +68,7 @@ jobs:
   build:
     name: Build
     needs: [check-pr]
-    if: ${{ needs.check-pr.outputs.pr-number != '' || github.event_name == 'workflow_call' }}
+    if: ${{ needs.check-pr.outputs.pr-number != '' || github.ref_name == 'main' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
