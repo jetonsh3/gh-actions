@@ -65,7 +65,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./bin
-          file: ./deploy/docker/Dockerfile.prod
+          file: ./Dockerfile
           outputs: type=${{ inputs.push == true && 'registry' || 'oci' }}
           platforms: linux/arm64,linux/amd64
           tags: ${{ steps.docker-metadata.outputs.tags }}
