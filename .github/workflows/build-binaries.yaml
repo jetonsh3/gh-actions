@@ -22,13 +22,10 @@ jobs:
             go.sum
 
       - name: Build Go Binary
-        run: |
-          mkdir -p bin
-          GOOS=linux GOARCH=${{ matrix.arch }} go build -o bin/${{ matrix.service }}-${{ matrix.arch }} ./${{ matrix.service }}/cmd/server/main.go
+        run: GOOS=linux GOARCH=${{ matrix.arch }} go build -o bin/${{ matrix.service }}-${{ matrix.arch }} ./${{ matrix.service }}/cmd/server/main.go
 
       - name: Upload Binary Artifact
         uses: actions/upload-artifact@v4
-        if: ${{ github.event_name == 'push' }}
         with:
           name: ${{ matrix.service }}-${{ matrix.arch }}
           path: bin/${{ matrix.service }}-${{ matrix.arch }}

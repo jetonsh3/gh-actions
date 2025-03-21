@@ -39,13 +39,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.service }}-arm64
-          path: bin/${{ matrix.service }}-arm64
+          path: ${{ matrix.service }}-arm64
 
       - name: Download AMD64 Binary
         uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.service }}-amd64
-          path: bin/${{ matrix.service }}-amd64
+          path: ${{ matrix.service }}-amd64
 
       - name: Authenticate to GCP Registry
         if: ${{ inputs.push }}
