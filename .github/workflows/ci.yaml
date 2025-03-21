@@ -49,12 +49,14 @@ jobs:
           version: v1.63.4
           args: --timeout=5m
 
-      - uses: jwalton/gh-find-current-pr@master
+      - name: PR Context
+        uses: jwalton/gh-find-current-pr@master
         id: pr
         with:
           state: open
 
-      - if: ${{ steps.pr.outputs.number != '' }}
+      - name: Output PR Number
+        if: ${{ steps.pr.outputs.number != '' }}
         run: |
           echo "pr-number=${{ steps.pr.outputs.number }}" >> $GITHUB_OUTPUT
 
