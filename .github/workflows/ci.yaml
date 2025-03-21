@@ -4,26 +4,43 @@ on:
   push:
     branches:
       - '**'
-      - '!main'
 
 jobs:
-  get-pr:
-    name: Get PR
-    runs-on: ubuntu-latest
-    outputs:
-      pr-number: ${{ steps.find-pr.outputs.number }}
-    steps:
-      - uses: jwalton/gh-find-current-pr@master
-        id: find-pr
-        with:
-          state: open
-
   tests:
-    name: Test & Lint
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: './go.mod'
+          cache-dependency-path: |
+            go.sum
+
+      - name: Run Tests
+        run: go test ./...
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
     permissions:
-      pull-requests: read
       contents: read
-      checks: write
-    uses: ./.github/workflows/tests.yaml
-    needs: get-pr
-    if: ${{ needs.get-pr.outputs.pr-number == '' }}
+      pull-requests: read
+      checks: write # allow write access to checks to allow the action to annotate code in the PR.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: './go.mod'
+          cache-dependency-path: |
+            go.sum
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.63.4
+          args: --timeout=5m

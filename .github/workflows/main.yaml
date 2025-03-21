@@ -1,4 +1,4 @@
-name: CD
+name: Main
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
       pull-requests: read
       checks: write
       contents: read
-    uses: ./.github/workflows/pr-ci.yaml
+    uses: ./.github/workflows/pull_request.yaml
 
   release:
     name: Release
