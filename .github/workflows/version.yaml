@@ -17,7 +17,7 @@ jobs:
     permissions:
       contents: write
     outputs:
-      next-version: ${{ steps.next-version.outputs.next-version || '1.0.0' }}
+      next-version: ${{ steps.next-version.outputs.next-version || '0.1.0' }}
     steps:
       - uses: actions/checkout@v4
         with:
