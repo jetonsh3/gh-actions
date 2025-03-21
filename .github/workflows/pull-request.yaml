@@ -83,7 +83,4 @@ jobs:
     steps:
       - name: Create And Push Manifest
         run: |
-          docker manifest create ${{ matrix.service }}:latest \
-            ${{ matrix.service }}:amd64 \
-            ${{ matrix.service }}:arm64
-          docker manifest push ${{ matrix.service }}:latest
+          echo "Create and Push Manifest"

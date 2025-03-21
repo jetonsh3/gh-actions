@@ -9,7 +9,7 @@ on:
 
 jobs:
   version:
-    name: Next Version
+    name: Get Next Version
     runs-on: ubuntu-latest
     permissions:
       contents: write
