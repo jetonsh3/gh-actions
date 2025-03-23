@@ -15,7 +15,6 @@ builds:
       - -X gh-actions/internal/version.Version={{ .Version }}
       - -X gh-actions/internal/version.GitCommit={{ .Commit }}
     no_unique_dist_dir: true
-
   - id: service2
     binary: service2-{{ .Os }}-{{ .Arch }}
     main: ./service2/cmd/server
@@ -40,28 +39,75 @@ archives:
 dockers:
   # service1
   - image_templates:
-      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:latest"
-      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .Version }}"
-      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .FullCommit }}"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:latest-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .Version }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .FullCommit }}-amd64"
     dockerfile: ./deploy/docker/Dockerfile.prod
     use: buildx
     build_flag_templates:
-      - "--push"
-      - "--platform=linux/amd64,linux/arm64"
+      - "--platform=linux/amd64"
       - "--build-arg=SERVICE=service1"
-      
+    goarch: amd64
+  - image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:latest-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .Version }}-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .FullCommit }}-arm64"
+    dockerfile: ./deploy/docker/Dockerfile.prod
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--build-arg=SERVICE=service1"
+    goarch: arm64
   # service2
   - image_templates:
-      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:latest"
-      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .Version }}"
-      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .FullCommit }}"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:latest-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .Version }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .FullCommit }}-amd64"
     dockerfile: ./deploy/docker/Dockerfile.prod
     use: buildx
     build_flag_templates:
-      - "--push"
-      - "--platform=linux/amd64,linux/arm64"
+      - "--platform=linux/amd64"
       - "--build-arg=SERVICE=service2"
+    goarch: amd64
+  - image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:latest-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .Version }}-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .FullCommit }}-arm64"
+    dockerfile: ./deploy/docker/Dockerfile.prod
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--build-arg=SERVICE=service2"
+    goarch: arm64
 
+docker_manifests:
+  # service1
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:latest"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:latest-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:latest-arm64"
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .Version }}"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .Version }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .Version }}-arm64"
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .FullCommit }}"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .FullCommit }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .FullCommit }}-arm64"
+  # service2
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:latest"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:latest-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:latest-arm64"
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .Version }}"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .Version }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .Version }}-arm64"
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .FullCommit }}"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .FullCommit }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .FullCommit }}-arm64"
+ 
 changelog:
   sort: asc
   groups:
