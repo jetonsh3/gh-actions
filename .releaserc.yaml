@@ -7,8 +7,8 @@ plugins:
     - prepareCmd: |
         yq eval '.version = "${nextRelease.version}" | .appVersion = "${nextRelease.version}"' -i deploy/helm/Chart.yaml
         yq eval '.configMap.container.tag = "${nextRelease.version}"' -i deploy/helm/values.yaml
-    - publishCmd: |
-        REGISTRY=${REGISTRY} REPOSITORY=${REPOSITORY} goreleaser release
+      publishCmd: |
+        goreleaser release
   - - "@semantic-release/git"
     - message: "chore(release): ${nextRelease.version} \n\n${nextRelease.notes} [skip ci]"
       assets:
