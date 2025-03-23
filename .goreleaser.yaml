@@ -107,9 +107,7 @@ docker_manifests:
     image_templates:
       - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .FullCommit }}-amd64"
       - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .FullCommit }}-arm64"
-
-checksum:
-  disable: true
+ 
 changelog:
   sort: asc
   groups:

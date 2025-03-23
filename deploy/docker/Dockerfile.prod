@@ -15,8 +15,8 @@ ARG TARGETOS
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /etc/passwd /etc/passwd
 
-# COPY ${SERVICE}-${TARGETOS}-${TARGETARCH} /service
+COPY ${SERVICE}-${TARGETOS}-${TARGETARCH} /service
 
 USER ghactions
 
-# ENTRYPOINT ["/service"]
+ENTRYPOINT ["/service"]
