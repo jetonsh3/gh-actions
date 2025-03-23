@@ -3,6 +3,18 @@ version: 2
 dist: ./bin
 
 builds:
+  - id: service1-darwin
+    binary: service1-{{ .Os }}-{{ .Arch }}
+    main: ./service1/cmd/server
+    env:
+      - CGO_ENABLED=0
+    goos: [darwin]
+    goarch: [arm64]
+    ldflags:
+      - -s -w
+      - -X gh-actions/internal/version.Version={{ .Version }}
+      - -X gh-actions/internal/version.GitCommit={{ .Commit }}
+    no_unique_dist_dir: true
   - id: service1
     binary: service1-{{ .Os }}-{{ .Arch }}
     main: ./service1/cmd/server
@@ -12,8 +24,8 @@ builds:
     goarch: [amd64, arm64]
     ldflags:
       - -s -w
-      - -X ghactions/internal/version.Version={{ .Version }}
-      - -X ghactions/internal/version.GitCommit={{ .Commit }}
+      - -X gh-actions/internal/version.Version={{ .Version }}
+      - -X gh-actions/internal/version.GitCommit={{ .Commit }}
     no_unique_dist_dir: true
   - id: service2
     binary: service2-{{ .Os }}-{{ .Arch }}
@@ -24,8 +36,8 @@ builds:
     goarch: [amd64, arm64]
     ldflags:
       - -s -w
-      - -X ghactions/internal/version.Version={{ .Version }}
-      - -X ghactions/internal/version.GitCommit={{ .Commit }}
+      - -X gh-actions/internal/version.Version={{ .Version }}
+      - -X gh-actions/internal/version.GitCommit={{ .Commit }}
     no_unique_dist_dir: true
 
 snapshot:
