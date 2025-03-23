@@ -4,11 +4,11 @@ plugins:
   - "@semantic-release/commit-analyzer"
   - "@semantic-release/release-notes-generator"
   - - '@semantic-release/exec'
-    - prepareCmd:
-        - yq -i -e ".version = ${nextRelease.version}" -e ".appVersion = ${nextRelease.version}" deploy/helm/Chart.yaml
-        - yq -i -e ".configMap.container.tag = ${nextRelease.version}" deploy/helm/values.yaml
-    - publishCmd:
-      - REGISTRY=${REGISTRY} REPOSITORY=${REPOSITORY} goreleaser release
+    - prepareCmd: |
+        yq eval '.version = "${nextRelease.version}" | .appVersion = "${nextRelease.version}"' -i deploy/helm/Chart.yaml
+        yq eval '.configMap.container.tag = "${nextRelease.version}"' -i deploy/helm/values.yaml
+    - publishCmd: |
+        REGISTRY=${REGISTRY} REPOSITORY=${REPOSITORY} goreleaser release
   - - "@semantic-release/git"
     - message: "chore(release): ${nextRelease.version} \n\n${nextRelease.notes} [skip ci]"
       assets:
