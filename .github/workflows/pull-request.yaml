@@ -27,3 +27,5 @@ jobs:
 
       - name: Build Snapshot
         run: goreleaser release --clean --snapshot
+        env:
+          IMAGE_REPOSITORY: docker.io/jshehu
