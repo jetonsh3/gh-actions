@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	fmt.Println("gh-actions", version.Version)
+	fmt.Println("service-2", version.Version)
 
 	count := 1
 	for {

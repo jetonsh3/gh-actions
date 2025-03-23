@@ -3,85 +3,26 @@ name: Pull Request
 on:
   pull_request:
     branches: [main]
-  workflow_call:
-    inputs:
-      release:
-        required: false
-        type: boolean
-        default: true
 
 jobs:
   tests:
     uses: ./.github/workflows/tests.yaml
 
-  version:
-    permissions:
-      contents: write
-    uses: ./.github/workflows/version.yaml
-
-  build-release:
-    name: Build Binary
-    needs: [tests, version]
+  build:
+    name: Build
+    needs: tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [ghactions]
-        arch: [amd64, arm64]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@v6
         with:
-          go-version-file: './go.mod'
-          cache-dependency-path: |
-            go.sum
-
-      - name: Build Go Binary
-        run: |
-          CGO_ENABLED=0 GOOS=linux GOARCH=${{ matrix.arch }} go build \
-            -o bin/${{ matrix.service }}-${{ matrix.arch }} \
-            -ldflags="-s -w \
-            -X 'gh-actions/internal/version.Version=${{ needs.version.outputs.next-version }}' \
-            -X 'gh-actions/internal/version.GitCommit=${{ github.sha }}'" \
-            ./${{ matrix.service }}/cmd/server/main.go
-
-      - name: Authenticate to GCP Registry
-        if: ${{ inputs.release }}
-        run: |
-          echo "Authenticating to GCP Registry"
+          install-only: true
+          version: v2.8.1
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and Push Docker Image
-        run: |
-          echo "Building Docker Image"
-
-      # - name: Build Docker Image
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     context: ./bin
-      #     file: ./deploy/docker/Dockerfile.prod
-      #     outputs: type=${{ inputs.release == true && 'registry' || 'oci' }}
-      #     platforms: linux/arm64,linux/amd64
-      #     tags: ${{ steps.docker-metadata.outputs.tags }}
-      #     labels: ${{ steps.docker-metadata.outputs.labels }}
-      #     build-args: |
-      #       SERVICE=${{ matrix.service }}
-  
-  docker-manifest:
-    name: Docker Manifest
-    needs: build-release
-    runs-on: ubuntu-latest
-    if: ${{ inputs.release }}
-    strategy:
-      matrix:
-        service: [ghactions]
-    steps:
-      - name: Create and Push Docker Manifest
-        run: |
-          echo "Create and Push Docker Manifest"
+      - name: Build Snapshot
+        run: goreleaser release --clean --snapshot

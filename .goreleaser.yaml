@@ -1,0 +1,126 @@
+version: 2
+
+dist: ./bin
+
+builds:
+  - id: service1
+    binary: service1-{{ .Os }}-{{ .Arch }}
+    main: ./service1/cmd/server
+    env:
+      - CGO_ENABLED=0
+    goos: [linux]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w
+      - -X ghactions/internal/version.Version={{ .Version }}
+      - -X ghactions/internal/version.GitCommit={{ .Commit }}
+    no_unique_dist_dir: true
+  - id: service2
+    binary: service2-{{ .Os }}-{{ .Arch }}
+    main: ./service2/cmd/server
+    env:
+      - CGO_ENABLED=0
+    goos: [linux]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w
+      - -X ghactions/internal/version.Version={{ .Version }}
+      - -X ghactions/internal/version.GitCommit={{ .Commit }}
+    no_unique_dist_dir: true
+
+snapshot:
+  version_template: "{{ .Version }}"
+
+archives:
+  - formats: [binary]
+    name_template: "{{ .Binary }}"
+    strip_binary_directory: true
+
+dockers:
+  # service1
+  - image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:latest-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .Version }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .FullCommit }}-amd64"
+    dockerfile: ./deploy/docker/Dockerfile.prod
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--build-arg=SERVICE=service1"
+    goarch: amd64
+  - image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:latest-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .Version }}-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .FullCommit }}-arm64"
+    dockerfile: ./deploy/docker/Dockerfile.prod
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--build-arg=SERVICE=service1"
+    goarch: arm64
+  # service2
+  - image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:latest-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .Version }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .FullCommit }}-amd64"
+    dockerfile: ./deploy/docker/Dockerfile.prod
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--build-arg=SERVICE=service2"
+    goarch: amd64
+  - image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:latest-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .Version }}-arm64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .FullCommit }}-arm64"
+    dockerfile: ./deploy/docker/Dockerfile.prod
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--build-arg=SERVICE=service2"
+    goarch: arm64
+
+docker_manifests:
+  # service1
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:latest"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:latest-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:latest-arm64"
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .Version }}"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .Version }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .Version }}-arm64"
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .FullCommit }}"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .FullCommit }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service1:{{ .FullCommit }}-arm64"
+  # service2
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:latest"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:latest-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:latest-arm64"
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .Version }}"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .Version }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .Version }}-arm64"
+  - name_template: "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .FullCommit }}"
+    image_templates:
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .FullCommit }}-amd64"
+      - "{{ .Env.REGISTRY }}/{{ .Env.REPOSITORY }}/service2:{{ .FullCommit }}-arm64"
+
+checksum:
+  disable: true
+changelog:
+  sort: asc
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: "Bug fixes"
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+  filters:
+    exclude:
+      - "^test:"
+      - "^ci:"
+      - "^chore:"

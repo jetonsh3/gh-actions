@@ -1,0 +1,9 @@
+configMap:
+  name: gh-actions
+  namespace: default
+  container:
+    image: ghactions
+    tag: 1.1.0
+  data:
+    - key: gh-actions
+      value: gh-actions

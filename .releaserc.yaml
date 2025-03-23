@@ -2,32 +2,15 @@ branches:
   - main
 plugins:
   - "@semantic-release/commit-analyzer"
-  - - "semantic-release-replace-plugin"
-    - replacements:
-        - files:
-            - deploy/helm/Chart.yaml
-          from: "version: .*"
-          to: "version: ${nextRelease.version}"
-          results:
-            - file: deploy/helm/Chart.yaml
-              hasChanged: true
-              numMatches: 1
-              numReplacements: 1
-          countMatches: true
-        - files:
-            - deploy/helm/Chart.yaml
-          from: "appVersion: .*"
-          to: "appVersion: ${nextRelease.version}"
-          results:
-            - file: deploy/helm/Chart.yaml
-              hasChanged: true
-              numMatches: 1
-              numReplacements: 1
-          countMatches: true
-  - - "@semantic-release/exec"
-    - publishCmd: |
-        # TODO: release
+  - "@semantic-release/release-notes-generator"
+  - - '@semantic-release/exec'
+    - prepareCmd:
+        - yq -i -e ".version = ${nextRelease.version}" -e ".appVersion = ${nextRelease.version}" deploy/helm/Chart.yaml
+        - yq -i -e ".configMap.container.tag = ${nextRelease.version}" deploy/helm/values.yaml
+    - publishCmd:
+      - REGISTRY=${REGISTRY} REPOSITORY=${REPOSITORY} goreleaser release
   - - "@semantic-release/git"
     - message: "chore(release): ${nextRelease.version} \n\n${nextRelease.notes} [skip ci]"
       assets:
         - deploy/helm/Chart.yaml
+        - deploy/helm/values.yaml
