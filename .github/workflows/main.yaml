@@ -4,10 +4,6 @@ on:
   push:
     branches: [main]
 
-env:
-  REGISTRY: docker.io
-  REPOSITORY: jshehu
-
 jobs:
   tests:
     name: Tests
@@ -59,5 +55,4 @@ jobs:
         run: npx -p @semantic-release/exec -p @semantic-release/git semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REGISTRY: ${{ env.REGISTRY }}
-          REPOSITORY: ${{ env.REPOSITORY }}
+          IMAGE_REPOSITORY: docker.io/jshehu
