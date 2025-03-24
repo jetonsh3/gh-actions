@@ -36,21 +36,6 @@ archives:
     name_template: "{{ .Binary }}"
     strip_binary_directory: true
 
-changelog:
-  sort: asc
-  groups:
-    - title: Features
-      regexp: "^.*feat[(\\w)]*:+.*$"
-      order: 0
-    - title: "Bug fixes"
-      regexp: "^.*fix[(\\w)]*:+.*$"
-      order: 1
-  filters:
-    exclude:
-      - "^test:"
-      - "^ci:"
-      - "^chore:"
-
 dockers:
   # service1
   - image_templates:
