@@ -1,0 +1,62 @@
+version: 2
+
+dist: ../bin
+
+builds:
+  - id: service2
+    binary: service2-{{ .Os }}-{{ .Arch }}
+    main: ./cmd/server
+    env:
+      - CGO_ENABLED=0
+    goos: [linux]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w
+      - -X gh-actions/internal/version.Version={{ .Version }}
+      - -X gh-actions/internal/version.GitCommit={{ .Commit }}
+    no_unique_dist_dir: true
+
+snapshot:
+  version_template: "{{ .Version }}"
+
+archives:
+  - formats: [binary]
+    name_template: "{{ .Binary }}"
+    strip_binary_directory: true
+
+dockers:
+  - image_templates:
+      - "{{ .Env.IMAGE_REPOSITORY }}/service2:latest-amd64"
+      - "{{ .Env.IMAGE_REPOSITORY }}/service2:{{ .Version }}-amd64"
+      - "{{ .Env.IMAGE_REPOSITORY }}/service2:{{ .FullCommit }}-amd64"
+    dockerfile: ../deploy/docker/Dockerfile.prod
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--build-arg=SERVICE=service2"
+    goarch: amd64
+  - image_templates:
+      - "{{ .Env.IMAGE_REPOSITORY }}/service2:latest-arm64"
+      - "{{ .Env.IMAGE_REPOSITORY }}/service2:{{ .Version }}-arm64"
+      - "{{ .Env.IMAGE_REPOSITORY }}/service2:{{ .FullCommit }}-arm64"
+    dockerfile: ../deploy/docker/Dockerfile.prod
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--build-arg=SERVICE=service2"
+    goarch: arm64
+
+docker_manifests:
+  - name_template: "{{ .Env.IMAGE_REPOSITORY }}/service2:latest"
+    image_templates:
+      - "{{ .Env.IMAGE_REPOSITORY }}/service2:latest-amd64"
+      - "{{ .Env.IMAGE_REPOSITORY }}/service2:latest-arm64"
+  - name_template: "{{ .Env.IMAGE_REPOSITORY }}/service2:{{ .Version }}"
+    image_templates:
+      - "{{ .Env.IMAGE_REPOSITORY }}/service2:{{ .Version }}-amd64"
+      - "{{ .Env.IMAGE_REPOSITORY }}/service2:{{ .Version }}-arm64"
+  - name_template: "{{ .Env.IMAGE_REPOSITORY }}/service2:{{ .FullCommit }}"
+    image_templates:
+      - "{{ .Env.IMAGE_REPOSITORY }}/service2:{{ .FullCommit }}-amd64"
+      - "{{ .Env.IMAGE_REPOSITORY }}/service2:{{ .FullCommit }}-arm64"
+ 
