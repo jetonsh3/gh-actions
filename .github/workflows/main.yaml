@@ -78,3 +78,4 @@ jobs:
           workdir: ${{ matrix.service }}
         env:
           IMAGE_REPOSITORY: docker.io/jshehu
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
