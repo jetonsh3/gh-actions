@@ -16,6 +16,9 @@ builds:
       - -X gh-actions/internal/version.GitCommit={{ .Commit }}
     no_unique_dist_dir: true
 
+release:
+  disable: true
+
 snapshot:
   version_template: "{{ .Version }}"
 

@@ -19,6 +19,9 @@ builds:
 snapshot:
   version_template: "{{ .Version }}"
 
+release:
+  disable: true
+
 archives:
   - formats: [binary]
     name_template: "{{ .Binary }}"
