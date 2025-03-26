@@ -13,19 +13,23 @@ jobs:
     name: Build
     needs: tests
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - service1
+          - service2
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install GoReleaser
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          install-only: true
-          version: v2.8.1
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Build Snapshot
-        run: goreleaser release --clean --snapshot
+      - name: GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          args: release --clean --snapshot
+          workdir: ${{ matrix.service }}
         env:
           IMAGE_REPOSITORY: gh-actions
