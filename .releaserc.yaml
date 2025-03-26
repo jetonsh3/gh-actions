@@ -4,4 +4,4 @@ plugins:
   - "@semantic-release/commit-analyzer"
   - - '@semantic-release/exec'
     - publishCmd: |
-        echo "release=true" >> $GITHUB_OUTPUT
+        echo "version=${nextRelease.version}" >> $GITHUB_OUTPUT
