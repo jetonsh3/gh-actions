@@ -1,11 +1,11 @@
 version: 2
 
-dist: ./bin
+dist: ../bin
 
 builds:
   - id: service2
     binary: service2-{{ .Os }}-{{ .Arch }}
-    main: ./service2/cmd/server
+    main: ./cmd/server
     env:
       - CGO_ENABLED=0
     goos: [linux]
@@ -29,7 +29,7 @@ dockers:
       - "{{ .Env.IMAGE_REPOSITORY }}/service2:latest-amd64"
       - "{{ .Env.IMAGE_REPOSITORY }}/service2:{{ .Version }}-amd64"
       - "{{ .Env.IMAGE_REPOSITORY }}/service2:{{ .FullCommit }}-amd64"
-    dockerfile: ./deploy/docker/Dockerfile.prod
+    dockerfile: ../deploy/docker/Dockerfile.prod
     use: buildx
     build_flag_templates:
       - "--platform=linux/amd64"
@@ -39,7 +39,7 @@ dockers:
       - "{{ .Env.IMAGE_REPOSITORY }}/service2:latest-arm64"
       - "{{ .Env.IMAGE_REPOSITORY }}/service2:{{ .Version }}-arm64"
       - "{{ .Env.IMAGE_REPOSITORY }}/service2:{{ .FullCommit }}-arm64"
-    dockerfile: ./deploy/docker/Dockerfile.prod
+    dockerfile: ../deploy/docker/Dockerfile.prod
     use: buildx
     build_flag_templates:
       - "--platform=linux/arm64"
