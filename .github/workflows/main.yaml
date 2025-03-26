@@ -7,12 +7,40 @@ on:
 jobs:
   tests:
     name: Tests
-    uses: ./.github/workflows/tests.yaml          
+    uses: ./.github/workflows/tests.yaml    
+    
+  release-tag:
+    name: Release Tag
+    needs: tests
+    runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.release.outputs.release }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "lts/*"
+
+      - name: Create Release Tag
+        id: release
+        run: npx -p @semantic-release/exec semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release:
     name: Release
-    needs: tests
+    needs: release-tag
     runs-on: ubuntu-latest
+    if: ${{ needs.release-tag.outputs.release }}
+    strategy:
+      matrix:
+        service:
+          - service1
+          - service2
     permissions:
       contents: write
     steps:
@@ -27,18 +55,6 @@ jobs:
           cache-dependency-path: |
             go.sum
 
-      - name: Install GoReleaser
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          distribution: goreleaser
-          version: '~> v2'
-          install-only: true
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "lts/*"
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -51,8 +67,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Release
-        run: npx -p @semantic-release/exec -p @semantic-release/git semantic-release
+      - name: GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          args: release --clean
+          workdir: ${{ matrix.service }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           IMAGE_REPOSITORY: docker.io/jshehu
